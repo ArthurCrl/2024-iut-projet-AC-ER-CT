@@ -1,3 +1,5 @@
+Projet de Clément Terrier, Evan Runemberg, Arthur Corroller
+
 == Rendu
 
 Le projet doit être rendu sous la forme d'un repository (gitlab ou github)
