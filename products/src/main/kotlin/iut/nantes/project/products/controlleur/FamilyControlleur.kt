@@ -25,4 +25,31 @@ class FamilyControlleur(private val familyService: FamilyService) {
     fun getAllFamilies(): List<FamilyResponse> {
         return familyService.getAllFamilies()
     }
+
+    @GetMapping("/{id}")
+    fun getFamilyById(@PathVariable id: String): FamilyResponse {
+        return try {
+            familyService.getFamilyById(id)
+        } catch (e: IllegalArgumentException) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid UUID format")
+        } catch (e: NoSuchElementException) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Family not found")
+        }
+    }
+
+    @PutMapping("/{id}")
+    fun updateFamily(
+        @PathVariable id: String,
+        @RequestBody request: FamilyRequest
+    ): FamilyResponse {
+        return try {
+            familyService.updateFamily(id, request)
+        } catch (e: NoSuchElementException) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, e.message)
+        } catch (e: IllegalArgumentException) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+        } catch (e: IllegalStateException) {
+            throw ResponseStatusException(HttpStatus.CONFLICT, e.message)
+        }
+    }
 }
