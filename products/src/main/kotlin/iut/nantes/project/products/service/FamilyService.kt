@@ -66,7 +66,6 @@ class FamilyService(private val familyRepository: FamilyRepository) {
         if (!isValidUUID(id)) {
             throw IllegalArgumentException("Invalid UUID format")
         }
-        val uuid = UUID.fromString(id)
 
         // Vérification de l'existence de la famille
         val existingFamily = familyRepository.findById(id)
