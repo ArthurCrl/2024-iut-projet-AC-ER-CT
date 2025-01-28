@@ -1,4 +1,4 @@
-package iut.nantes.project.stores.repository
+package iut.nantes.project.stores.entity
 
 import jakarta.persistence.*
 import jakarta.validation.constraints.*

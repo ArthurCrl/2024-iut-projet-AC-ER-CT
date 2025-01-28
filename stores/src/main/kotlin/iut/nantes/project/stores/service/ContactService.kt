@@ -1,6 +1,6 @@
 package iut.nantes.project.stores.service
 
-import iut.nantes.project.stores.repository.ContactEntity
+import iut.nantes.project.stores.entity.ContactEntity
 import iut.nantes.project.stores.repository.ContactRepository
 import org.springframework.stereotype.Service
 

@@ -1,6 +1,6 @@
 package iut.nantes.project.stores.controller
 
-import iut.nantes.project.stores.repository.ContactEntity
+import iut.nantes.project.stores.entity.ContactEntity
 import iut.nantes.project.stores.service.ContactService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

@@ -1,69 +1,74 @@
 package iut.nantes.project.stores.service
 
-import iut.nantes.project.stores.service.ProductServiceClient
-import iut.nantes.project.stores.repository.StoreEntity
+import iut.nantes.project.stores.entity.StoreEntity
 import iut.nantes.project.stores.repository.StoreRepository
+import iut.nantes.project.stores.repository.ContactRepository
+import iut.nantes.project.stores.dto.StoreRequest
+import iut.nantes.project.stores.exception.StoreNotFoundException
+import iut.nantes.project.stores.exception.InvalidDataException
+import iut.nantes.project.stores.webclient.ProductWebClient
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class StoreService(
     private val storeRepository: StoreRepository,
-    private val productServiceClient: ProductServiceClient // Injection du client ProductService
+    private val contactRepository: ContactRepository,
+    private val productWebClient: ProductWebClient
 ) {
 
-    // Créer un magasin
-    suspend fun createStore(store: StoreEntity): StoreEntity {
-        // Vérifier si le contact existe ou le créer (à implémenter selon tes besoins)
+    @Transactional
+    fun createStore(storeRequest: StoreRequest): StoreEntity {
+        if (storeRequest.name.length !in 3..30) {
+            throw InvalidDataException("Le nom du magasin doit contenir entre 3 et 30 caractères.")
+        }
 
-        // Appel au service Product pour récupérer les produits associés au magasin
-        val products = productServiceClient.getProductsForStore(store.id ?: 0)
+        // Vérifier si le contact existe, sinon le créer
+        val contact = contactRepository.findById(storeRequest.contact.id)
+            .orElseGet { contactRepository.save(storeRequest.contact.toEntity()) }
 
-        // Associer les produits récupérés au magasin
-        store.products = products
+        val store = StoreEntity(
+            name = storeRequest.name,
+            contact = contact,
+            products = emptyList() // La liste de produits est ignorée lors de la création
+        )
 
-        // Sauvegarder le magasin dans la base de données
         return storeRepository.save(store)
     }
 
-    // Récupérer un magasin par ID
-    suspend fun getStoreById(id: Long): StoreEntity {
-        val store = storeRepository.findById(id).orElseThrow {
-            throw RuntimeException("Store not found")
-        }
-
-        // Appel au service Product pour récupérer les produits associés
-        val products = productServiceClient.getProductsForStore(id)
-
-        // Associer les produits au magasin
-        store.products = products
-        return store
-    }
-
-    // Récupérer tous les magasins triés par nom
     fun getAllStores(): List<StoreEntity> {
         return storeRepository.findAll().sortedBy { it.name }
     }
 
-    // Mettre à jour un magasin (sans toucher à la liste de produits)
-    fun updateStore(id: Long, store: StoreEntity): StoreEntity {
-        val existingStore = storeRepository.findById(id).orElseThrow {
-            throw RuntimeException("Store not found")
-        }
-
-        // Mise à jour du magasin (pas de modification des produits)
-        existingStore.name = store.name
-        existingStore.contact = store.contact
-
-        return storeRepository.save(existingStore)
+    fun getStoreById(id: Long): StoreEntity {
+        if (id <= 0) throw InvalidDataException("L'ID du magasin est invalide.")
+        return storeRepository.findById(id)
+            .orElseThrow { StoreNotFoundException("Magasin avec l'ID $id non trouvé.") }
     }
 
-    // Supprimer un magasin
-    fun deleteStore(id: Long) {
-        val store = storeRepository.findById(id).orElseThrow {
-            throw RuntimeException("Store not found")
+    @Transactional
+    fun updateStore(id: Long, storeRequest: StoreRequest): StoreEntity {
+        val store = getStoreById(id)
+
+        if (storeRequest.name.length !in 3..30) {
+            throw InvalidDataException("Le nom du magasin doit contenir entre 3 et 30 caractères.")
         }
 
-        // Suppression du magasin
+        // Mise à jour du contact si nécessaire
+        val updatedContact = contactRepository.findById(storeRequest.contact.id)
+            .orElseGet { contactRepository.save(storeRequest.contact.toEntity()) }
+
+        val updatedStore = store.copy(
+            name = storeRequest.name,
+            contact = updatedContact
+        )
+
+        return storeRepository.save(updatedStore)
+    }
+
+    @Transactional
+    fun deleteStore(id: Long) {
+        val store = getStoreById(id)
         storeRepository.delete(store)
     }
 }

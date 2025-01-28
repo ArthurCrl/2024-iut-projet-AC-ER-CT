@@ -1,43 +1,44 @@
 package iut.nantes.project.stores.controller
 
-import iut.nantes.project.stores.repository.StoreEntity
+import iut.nantes.project.stores.dto.StoreRequest
+import iut.nantes.project.stores.dto.StoreResponse
 import iut.nantes.project.stores.service.StoreService
-import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/stores")
-class StoreController(private val storeService: StoreService) {
+class StoreController(
+    private val storeService: StoreService
+) {
 
-    // Créer un magasin
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    suspend fun createStore(@RequestBody store: StoreEntity): StoreEntity {
-        return storeService.createStore(store)
+    fun createStore(@RequestBody storeRequest: StoreRequest): ResponseEntity<StoreResponse> {
+        val createdStore = storeService.createStore(storeRequest)
+        return ResponseEntity.status(201).body(createdStore)
     }
 
-    // Récupérer un magasin par son ID
-    @GetMapping("/{id}")
-    suspend fun getStoreById(@PathVariable id: Long): StoreEntity {
-        return storeService.getStoreById(id)
-    }
-
-    // Récupérer tous les magasins triés par nom
     @GetMapping
-    fun getAllStores(): List<StoreEntity> {
-        return storeService.getAllStores()
+    fun getAllStores(): ResponseEntity<List<StoreResponse>> {
+        val stores = storeService.getAllStores()
+        return ResponseEntity.ok(stores)
     }
 
-    // Mettre à jour un magasin (sans changer les produits)
+    @GetMapping("/{id}")
+    fun getStoreById(@PathVariable id: Long): ResponseEntity<StoreResponse> {
+        val store = storeService.getStoreWithProducts(id)
+        return ResponseEntity.ok(store)
+    }
+
     @PutMapping("/{id}")
-    fun updateStore(@PathVariable id: Long, @RequestBody store: StoreEntity): StoreEntity {
-        return storeService.updateStore(id, store)
+    fun updateStore(@PathVariable id: Long, @RequestBody storeRequest: StoreRequest): ResponseEntity<StoreResponse> {
+        val updatedStore = storeService.updateStore(id, storeRequest)
+        return ResponseEntity.ok(updatedStore)
     }
 
-    // Supprimer un magasin
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun deleteStore(@PathVariable id: Long) {
+    fun deleteStore(@PathVariable id: Long): ResponseEntity<Void> {
         storeService.deleteStore(id)
+        return ResponseEntity.noContent().build()
     }
 }
