@@ -6,10 +6,10 @@ data class StoreResponse(
     val id: Long,
     val name: String,
     val contact: ContactEntity,
-    val products: List<ProductResponse>
+    val products: List<ProductStore>
 )
 
-data class ProductResponse(
+data class ProductStore(
     val id: String,
     val name: String, // Récupéré via WebClient
     val quantity: Int

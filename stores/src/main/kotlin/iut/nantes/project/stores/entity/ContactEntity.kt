@@ -1,5 +1,6 @@
 package iut.nantes.project.stores.entity
 
+import iut.nantes.project.stores.dto.AddressDTO
 import jakarta.persistence.*
 import jakarta.validation.constraints.*
 
@@ -19,13 +20,14 @@ data class ContactEntity(
     val phone: String,
 
     @Embedded
-    val address: Address
+    val address: AddressEntity
 ) {
-    constructor() : this(0, "", "", Address())
+    fun toDto() : ContactDto = ContactDto(id, email, phone, address.toDto())
 }
 
+
 @Embeddable
-data class Address(
+data class AddressEntity(
     @field:NotBlank
     @field:Size(min = 5, max = 50)
     val street: String,
@@ -36,6 +38,6 @@ data class Address(
 
     @field:Pattern(regexp = "\\d{5}", message = "Postal code must contain exactly 5 digits")
     val postalCode: String
-) {
-    constructor() : this("", "", "")
+){
+    fun toDto() : AddressDTO = AddressDTO(street, city, postalCode)
 }

@@ -1,9 +1,10 @@
 package iut.nantes.project.stores.service
 
+import com.sun.media.sound.InvalidDataException
 import iut.nantes.project.stores.entity.StoreEntity
 import iut.nantes.project.stores.repository.StoreRepository
 import iut.nantes.project.stores.repository.ContactRepository
-import iut.nantes.project.stores.dto.StoreRequest
+import iut.nantes.project.stores.dto.StoreResponse
 import iut.nantes.project.stores.exception.StoreNotFoundException
 import iut.nantes.project.stores.exception.InvalidDataException
 import iut.nantes.project.stores.webclient.ProductWebClient
@@ -18,7 +19,7 @@ class StoreService(
 ) {
 
     @Transactional
-    fun createStore(storeRequest: StoreRequest): StoreEntity {
+    fun createStore(storeRequest: StoreResponse): StoreEntity {
         if (storeRequest.name.length !in 3..30) {
             throw InvalidDataException("Le nom du magasin doit contenir entre 3 et 30 caractères.")
         }
@@ -47,7 +48,7 @@ class StoreService(
     }
 
     @Transactional
-    fun updateStore(id: Long, storeRequest: StoreRequest): StoreEntity {
+    fun updateStore(id: Long, storeRequest: StoreResponse): StoreEntity {
         val store = getStoreById(id)
 
         if (storeRequest.name.length !in 3..30) {
