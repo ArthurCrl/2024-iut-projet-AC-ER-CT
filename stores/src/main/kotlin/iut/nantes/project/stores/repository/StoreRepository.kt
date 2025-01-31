@@ -6,5 +6,4 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface StoreRepository : JpaRepository<StoreEntity, Long> {
-    fun findByName(name: String): List<StoreEntity>
 }

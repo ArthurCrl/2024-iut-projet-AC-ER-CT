@@ -1,6 +1,7 @@
 package iut.nantes.project.stores.entity
 
 import iut.nantes.project.stores.dto.AddressDTO
+import iut.nantes.project.stores.dto.ContactDTO
 import jakarta.persistence.*
 import jakarta.validation.constraints.*
 
@@ -22,7 +23,7 @@ data class ContactEntity(
     @Embedded
     val address: AddressEntity
 ) {
-    fun toDto() : ContactDto = ContactDto(id, email, phone, address.toDto())
+    fun toDto() : ContactDTO = ContactDTO(id, email, phone, address.toDto())
 }
 
 

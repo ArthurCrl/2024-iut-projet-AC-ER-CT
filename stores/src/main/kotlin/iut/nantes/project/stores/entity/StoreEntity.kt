@@ -1,27 +1,42 @@
 package iut.nantes.project.stores.entity
 
+import iut.nantes.project.stores.dto.ProductDTO
+import iut.nantes.project.stores.dto.StoreDTO
 import jakarta.persistence.*
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.Size
+import java.util.UUID
 
 @Entity
 @Table(name = "stores")
 data class StoreEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    val id: Long = 0,
 
-    @NotBlank(message = "Le nom du magasin est obligatoire.")
-    @Size(min = 3, max = 30, message = "Le nom doit faire entre 3 et 30 caractères.")
-    @Column(unique = true)
-    val name: String,
+    @Column(nullable = false, length = 30)
+    var name: String,
 
-    @ManyToOne
+    @ManyToOne(cascade = [CascadeType.PERSIST])
     @JoinColumn(name = "contact_id", nullable = false)
     val contact: ContactEntity,
 
-    @ElementCollection
-    @CollectionTable(name = "store_products", joinColumns = [JoinColumn(name = "store_id")])
-    val products: List<StoreProduct> = emptyList() // Stocke ID + quantité, mais pas le nom
-)
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
+    @JoinColumn(name = "store_id")
+    var products: MutableList<ProductEntity> = mutableListOf()
+) {
+    fun toDto() = StoreDTO(id, name, contact.toDto(), products.map { it.toDto() }.toMutableList())
+}
 
+@Entity
+@Table(name = "products")
+data class ProductEntity(
+    @Id
+    val id: UUID, // UUID
+
+    @Column(nullable = false)
+    val name: String,
+
+    @Column(nullable = false)
+    var quantity: Int,
+) {
+    fun toDto() = ProductDTO(id, name, quantity)
+}

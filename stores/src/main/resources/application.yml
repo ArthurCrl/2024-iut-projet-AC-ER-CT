@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:storesdb
+    url: jdbc:h2:file:C:/Users/cterr/test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -12,8 +12,22 @@ spring:
     console:
       enabled: true
   webclient:
-    base-url: "http://product-service"
+    base-url: "http://localhost"
 
 server:
   port: 8082
+  tomcat:
+    accesslog:
+      enabled: true
+      pattern: '%h %l %u %t "%r" %s %b'
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+    org.springframework.web.servlet.DispatcherServlet: DEBUG
+    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: DEBUG
+    org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver: DEBUG
 

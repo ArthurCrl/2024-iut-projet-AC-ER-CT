@@ -1,4 +1,4 @@
-package iut.nantes.project.stores.controller
+package iut.nantes.project.stores.config
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -15,6 +15,6 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     fun handleException(ex: Exception): ResponseEntity<String> {
-        return ResponseEntity("Une erreur interne est survenue", HttpStatus.INTERNAL_SERVER_ERROR)
+        return ResponseEntity("Une erreur interne est survenue : ${ex.message}", HttpStatus.INTERNAL_SERVER_ERROR)
     }
 }
