@@ -21,9 +21,7 @@ data class ProductJpa(
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "family_id", nullable = false)
     val family: FamilyJpa
-) {
-    constructor() : this("", "", null, PriceJpa(), FamilyJpa())
-}
+)
 
 @Embeddable
 data class PriceJpa(
@@ -32,6 +30,4 @@ data class PriceJpa(
 
     @Column(nullable = false, length = 3)
     val currency: String = "EUR"
-) {
-    constructor() : this(0.0, "")
-}
+)

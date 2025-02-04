@@ -13,7 +13,4 @@ data class FamilyJpa(
 
     @Column(nullable = false, length = 100)
     val description: String
-){
-    // Constructeur no-arg requis par JPA
-    constructor() : this("", "", "")
-}
+)
