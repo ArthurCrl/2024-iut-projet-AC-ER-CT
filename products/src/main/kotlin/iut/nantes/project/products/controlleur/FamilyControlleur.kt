@@ -52,4 +52,18 @@ class FamilyControlleur(private val familyService: FamilyService) {
             throw ResponseStatusException(HttpStatus.CONFLICT, e.message)
         }
     }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deleteFamily(@PathVariable id: String) {
+        try {
+            familyService.deleteFamilyById(id)
+        } catch (e: IllegalArgumentException) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+        } catch (e: NoSuchElementException) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, e.message)
+        } catch (e: IllegalStateException) {
+            throw ResponseStatusException(HttpStatus.CONFLICT, e.message)
+        }
+    }
 }

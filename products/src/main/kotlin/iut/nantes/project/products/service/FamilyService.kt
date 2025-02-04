@@ -4,6 +4,7 @@ import iut.nantes.project.products.controlleur.dto.FamilyRequest
 import iut.nantes.project.products.controlleur.dto.FamilyResponse
 import iut.nantes.project.products.repository.FamilyJpa
 import iut.nantes.project.products.repository.FamilyRepository
+import iut.nantes.project.products.repository.ProductRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
@@ -11,7 +12,10 @@ import kotlin.NoSuchElementException
 
 @Service
 @Transactional
-class FamilyService(private val familyRepository: FamilyRepository) {
+class FamilyService(
+    private val familyRepository: FamilyRepository,
+    private val productRepository: ProductRepository
+) {
 
     fun createFamily(request: FamilyRequest): FamilyResponse {
         // Vérifie si le nom est déjà utilisé
@@ -42,6 +46,15 @@ class FamilyService(private val familyRepository: FamilyRepository) {
                 name = family.name,
                 description = family.description
             )
+        }
+    }
+
+    private fun isValidUUID(uuid: String): Boolean {
+        return try {
+            UUID.fromString(uuid)
+            true
+        } catch (e: IllegalArgumentException) {
+            false
         }
     }
 
@@ -100,13 +113,23 @@ class FamilyService(private val familyRepository: FamilyRepository) {
         )
     }
 
-    private fun isValidUUID(uuid: String): Boolean {
-        return try {
-            UUID.fromString(uuid)
-            true
-        } catch (e: IllegalArgumentException) {
-            false
+    fun deleteFamilyById(id: String) {
+        if (!isValidUUID(id)) {
+            throw IllegalArgumentException("Invalid UUID format")
         }
+
+        val family = familyRepository.findById(id)
+            .orElseThrow { NoSuchElementException("No family found with the given ID") }
+
+        // Vérification de la présence de produits liés à cette famille
+        val hasLinkedProducts = productRepository.existsByFamilyId(id)
+        if (hasLinkedProducts) {
+            throw IllegalStateException("Cannot delete family, products are still linked to it")
+        }
+
+        familyRepository.delete(family)
     }
+
+
 
 }
