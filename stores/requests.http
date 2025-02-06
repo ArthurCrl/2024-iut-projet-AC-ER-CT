@@ -1,0 +1,154 @@
+### 1. Créer un contact 201
+POST http://localhost:8082/api/v1/contacts
+Content-Type: application/json
+
+{
+  "email": "contact1@example.com",
+  "phone": "0123456789",
+  "address": {
+    "street": "Rue Example",
+    "city": "Nantes",
+    "postalCode": "44300"
+  }
+}
+
+### 1.1 Créer un Contact 400
+POST http://localhost:8082/api/v1/contacts
+Content-Type: application/json
+
+{
+"email": "contact1@example.com",
+"phone": "0dqdqdq",
+"address": {
+"street": "Rue Example",
+"city": "Nantes",
+"postalCode": "44300"
+}
+}
+
+
+### 1.2 Obtenir tous les contacts
+GET http://localhost:8082/api/v1/contacts
+
+### 1.3 Obtenir un contact par ID 200
+GET http://localhost:8082/api/v1/contacts/321
+
+### 1.3 Obtenir un contact par ID
+GET http://localhost:8082/api/v1/contacts/dqdqd
+
+### 1.3 Obtenir un contact par ID
+GET http://localhost:8082/api/v1/contacts/4000
+
+### 1.4 Mettre à jour un contact
+PUT http://localhost:8082/api/v1/contacts/321
+Content-Type: application/json
+
+{
+  "email": "updated@example.com",
+  "phone": "0123456789",
+  "address": {
+    "street": "Rue Updated",
+    "city": "Paris",
+    "postalCode": "75000"
+  }
+}
+
+### 1.5 Supprimer un contact
+DELETE http://localhost:8082/api/v1/contacts/194
+
+
+### 2. TESTER Store API
+# 2.1 Créer un magasin
+POST http://localhost:8082/api/v1/stores
+Content-Type: application/json
+
+{
+  "name": "Atlantis",
+  "contact": {
+    "email": "contact1@example.com",
+    "phone": "0123456789",
+    "address": {
+      "street": "Rue Example",
+      "city": "Nantes",
+      "postalCode": "44300"
+    }
+  },
+  "products": []
+}
+
+### 2.2 Obtenir tous les magasins
+GET http://localhost:8082/api/v1/stores
+
+### 2.3 Obtenir un magasin par ID
+GET http://localhost:8082/api/v1/stores/1
+
+### 2.4 Mettre à jour un magasin
+PUT http://localhost:8082/api/v1/stores/1
+Content-Type: application/json
+
+{
+  "name": "Atlantis Updatedd",
+  "contact": {
+    "email": "contact1@example.com",
+    "phone": "3123456784",
+    "address": {
+      "street": "Rue Example",
+      "city": "Paris",
+      "postalCode": "44340"
+    }
+  },
+  "products": []
+}
+
+### 2.5 Supprimer un magasin
+DELETE http://localhost:8082/api/v1/stores/37
+
+### 3. Ajouter famille
+
+POST http://localhost:8081/api/v1/families
+Content-Type: application/json
+
+{
+  "name": "Bike",
+  "description": "All kind of bikes"
+}
+
+### 3. Obtenir famille
+
+GET http://localhost:8081/api/v1/families
+
+
+### 3. AJouter produit
+
+POST http://localhost:8081/api/v1/products
+Content-Type: application/json
+
+{
+  "name": "RC 500",
+  "description": "VELO ROUTE CYCLOTOURISTE",
+  "price": {
+    "amount": 875,
+    "currency": "EUR"
+  },
+  "familyId": "5d0fd21b-5378-4e8a-b6fb-fdd8bb2c07ef"
+}
+
+### 3. Obtenir le produit
+
+GET http://localhost:8081/api/v1/products
+
+### 3. TESTER Stock API
+# 3.1 Ajouter un produit au stock
+POST http://localhost:8082/api/v1/stores/1/products/e1780f71-e27e-4778-9585-d7675f777fc2/add?quantity=2
+
+### 3.2 Retirer un produit du stock
+POST http://localhost:8082/api/v1/stores/1/products/e1780f71-e27e-4778-9585-d7675f777fc2/remove?quantity=1
+
+### 3.3 Supprimer des produits du stock
+DELETE http://localhost:8082/api/v1/stores/1/products
+Content-Type: application/json
+
+[
+  "e1780f71-e27e-4778-9585-d7675f777fc2",
+  "e1780f71-e27e-4778-9585-d7675f777fc2"
+]

@@ -10,7 +10,7 @@ import jakarta.validation.constraints.*
 data class ContactEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
+    val id: Long?,
 
     @field:Email
     @field:NotBlank

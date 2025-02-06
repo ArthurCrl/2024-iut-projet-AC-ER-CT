@@ -10,7 +10,7 @@ import java.util.UUID
 data class StoreEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
+    val id: Long?,
 
     @Column(nullable = false, length = 30)
     var name: String,

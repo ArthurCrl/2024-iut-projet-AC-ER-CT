@@ -1,11 +1,15 @@
 package iut.nantes.project.stores.service
 
 import iut.nantes.project.stores.dto.ContactDTO
-import iut.nantes.project.stores.entity.ContactEntity
+import iut.nantes.project.stores.exception.ContactExistInMagasinExecption
+import iut.nantes.project.stores.exception.ContactNotFoundException
+import iut.nantes.project.stores.exception.InvalidContactDataException
 import iut.nantes.project.stores.repository.ContactRepository
 import org.springframework.stereotype.Service
+import org.springframework.validation.annotation.Validated
 
 @Service
+@Validated
 class ContactService(private val contactRepository: ContactRepository) {
 
     fun createContact(contactDTO: ContactDTO): ContactDTO {
@@ -25,19 +29,19 @@ class ContactService(private val contactRepository: ContactRepository) {
 
     fun getContactById(id: Long): ContactDTO {
         val contact = contactRepository.findById(id).orElseThrow {
-            throw IllegalArgumentException("Contact non trouvé pour l'id $id")
+            throw ContactNotFoundException("Contact non trouvé pour l'ID $id")
         }
+
         return contact.toDto()
     }
 
     fun updateContact(id: Long, updatedContactDTO: ContactDTO): ContactDTO {
         val existingContact = contactRepository.findById(id).orElseThrow {
-            throw IllegalArgumentException("Contact non trouvé pour l'id $id")
+            throw InvalidContactDataException("Les données sont invalides")
         }
 
-        // Vérifier qu'on ne change pas à la fois l'email et le téléphone
         if (existingContact.email != updatedContactDTO.email && existingContact.phone != updatedContactDTO.phone) {
-            throw IllegalArgumentException("Vous ne pouvez pas changer à la fois l'email et le téléphone.")
+            throw InvalidContactDataException("Vous ne pouvez pas changer à la fois l'email et le téléphone.")
         }
 
         val contactToSave = existingContact.copy(
@@ -51,11 +55,11 @@ class ContactService(private val contactRepository: ContactRepository) {
 
     fun deleteContact(id: Long, hasLinkedStore: Boolean) {
         if (hasLinkedStore) {
-            throw IllegalStateException("Le contact est lié à un magasin, suppression impossible.")
+            throw ContactExistInMagasinExecption("Le contact est lié à un magasin, suppression impossible.")
         }
 
         if (!contactRepository.existsById(id)) {
-            throw IllegalArgumentException("Contact non trouvé pour l'id $id")
+            throw InvalidContactDataException("L'id est invalide")
         }
         contactRepository.deleteById(id)
     }

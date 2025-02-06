@@ -5,10 +5,9 @@ import iut.nantes.project.stores.dto.StoreDTO
 import iut.nantes.project.stores.entity.ProductEntity
 import iut.nantes.project.stores.repository.ContactRepository
 import iut.nantes.project.stores.repository.StoreRepository
-import iut.nantes.project.stores.entity.StoreEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import iut.nantes.project.stores.config.WebClientConfig
+import iut.nantes.project.stores.exception.ContactIdInexistantException
 import org.springframework.web.reactive.function.client.WebClient
 import java.util.*
 import kotlin.NoSuchElementException
@@ -31,17 +30,12 @@ class StoreService(
 
     @Transactional
     fun createStore(storeDTO: StoreDTO): StoreDTO {
-        // Vérification du nom du magasin
-        if (storeDTO.name.length !in 3..30) {
-            throw IllegalArgumentException("Le nom du magasin doit contenir entre 3 et 30 caractères.")
-        }
-
-        val contact = storeDTO.contact.id.let { contactRepository.findById(it).orElse(null) }
-            ?: storeDTO.contact.toEntity()  // Si l'id est null, on crée un nouveau contact
+        val contact = storeDTO.contact.id?.let {
+            contactRepository.findById(it).orElse(null)
+        } ?: storeDTO.contact.toEntity()
 
         val storeEntity = storeDTO.toEntity(contact)
 
-        // Sauvegarde du magasin
         val savedStore = storeRepository.save(storeEntity)
 
         return savedStore.toDto()
@@ -50,8 +44,14 @@ class StoreService(
 
     @Transactional
     fun updateStore(id: Long, storeDTO: StoreDTO): StoreDTO {
-        if (storeDTO.name.length !in 3..30) {
-            throw IllegalArgumentException("Le nom du magasin doit contenir entre 3 et 30 caractères.")
+
+        val contactEntity = if (storeDTO.contact.id != null) {
+            contactRepository.findById(storeDTO.contact.id).orElseThrow {
+                ContactIdInexistantException("Le contact avec l'id ${storeDTO.contact.id} n'existe pas.")
+            }
+        } else {
+            val newContactEntity = storeDTO.contact.toEntity()
+            contactRepository.save(newContactEntity)
         }
 
         val existingStore = storeRepository.findById(id)
@@ -59,7 +59,7 @@ class StoreService(
 
         val updatedStore = existingStore.copy(
             name = storeDTO.name,
-            contact = storeDTO.contact.toEntity()
+            contact = contactEntity
         )
 
         return storeRepository.save(updatedStore).toDto()
@@ -88,18 +88,31 @@ class StoreService(
             store.products.add(exProduct)
         }
 
+        storeRepository.save(store)
+
         return exProduct.toDto()
     }
 
     private fun getProductByIdFromProductService(productId: UUID): ProductDTO {
-        // Effectuer un appel HTTP avec WebClient pour récupérer le produit
-        return webClient.get()
-            .uri("/api/v1/products/{productId}", productId)
-            .retrieve()
-            .bodyToMono(ProductDTO::class.java)
-            .block() // Blocage jusqu'à la récupération de la réponse
-            ?: throw IllegalArgumentException("Produit avec l'ID $productId non trouvé dans le service product.")
+        println("Récupération du produit avec l'ID $productId depuis le service produit...")
+
+        return try {
+            webClient.get()
+                .uri("/api/v1/products/{productId}", productId)
+                .retrieve()
+                .onStatus({ status -> status.is4xxClientError || status.is5xxServerError }) { response ->
+                    println("Erreur lors de la récupération du produit. Code: ${response.statusCode()}")
+                    throw IllegalArgumentException("Produit avec l'ID $productId non trouvé dans le service product. Code: ${response.statusCode()}")
+                }
+                .bodyToMono(ProductDTO::class.java)
+                .block() // Blocage jusqu'à la récupération de la réponse
+                ?: throw IllegalArgumentException("Produit avec l'ID $productId non trouvé dans le service product.")
+        } catch (ex: Exception) {
+            println("Exception lors de la récupération du produit: ${ex.message}")
+            throw IllegalArgumentException("Erreur lors de la récupération du produit avec l'ID $productId: ${ex.message}", ex)
+        }
     }
+
 
     fun removeProductFromStock(storeId: Long, productId: UUID, quantity: Int): ProductDTO {
         if (quantity <= 0) throw IllegalArgumentException("La quantité doit être positive.")

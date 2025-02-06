@@ -1,12 +1,10 @@
 package iut.nantes.project.stores.controller
 
 import iut.nantes.project.stores.dto.ContactDTO
-import iut.nantes.project.stores.entity.ContactEntity
 import iut.nantes.project.stores.service.ContactService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -27,7 +25,7 @@ class ContactController(private val contactService: ContactService) {
     }
 
     @GetMapping("/{id}")
-    fun getContactById(@PathVariable id: Long): ResponseEntity<ContactDTO> {
+    fun getContactById(@PathVariable @Valid id: Long): ResponseEntity<ContactDTO> {
         val contact = contactService.getContactById(id)
         return ResponseEntity.ok(contact)
     }

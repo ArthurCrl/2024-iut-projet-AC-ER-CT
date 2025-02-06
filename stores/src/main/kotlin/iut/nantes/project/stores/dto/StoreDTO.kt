@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Size
 import java.util.UUID
 
 data class StoreDTO(
-    val id: Long,
+    val id: Long?,
     @field:NotBlank
     @field:Size(min = 3, max = 30)
     val name: String,
