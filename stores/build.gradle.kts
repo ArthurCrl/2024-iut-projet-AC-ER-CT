@@ -25,7 +25,6 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-webflux")
-
 	implementation("org.springframework.boot:spring-boot-starter-logging")
 
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -41,6 +40,7 @@ dependencies {
 	testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.28.1")
     testImplementation("io.mockk:mockk:1.13.12")
     testImplementation("com.ninja-squad:springmockk:4.0.2")
+
 
 
 	implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
