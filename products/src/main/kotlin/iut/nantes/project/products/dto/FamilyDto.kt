@@ -1,4 +1,4 @@
-package iut.nantes.project.products.controlleur.dto
+package iut.nantes.project.products.dto
 
 data class FamilyRequest(
     val name: String,

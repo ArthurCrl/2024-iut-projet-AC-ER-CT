@@ -1,7 +1,7 @@
 package iut.nantes.project.products.controlleur
 
-import iut.nantes.project.products.controlleur.dto.FamilyRequest
-import iut.nantes.project.products.controlleur.dto.FamilyResponse
+import iut.nantes.project.products.dto.FamilyRequest
+import iut.nantes.project.products.dto.FamilyResponse
 import iut.nantes.project.products.service.FamilyService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*

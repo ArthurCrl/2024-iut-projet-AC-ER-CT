@@ -1,7 +1,7 @@
 package iut.nantes.project.products.controlleur
 
-import iut.nantes.project.products.controlleur.dto.ProductRequest
-import iut.nantes.project.products.controlleur.dto.ProductResponse
+import iut.nantes.project.products.dto.ProductRequest
+import iut.nantes.project.products.dto.ProductResponse
 import iut.nantes.project.products.service.ProductService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -56,6 +56,20 @@ class ProductControlleur(private val productService: ProductService) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
         } catch (e: NoSuchElementException) {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, e.message)
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deleteProduct(@PathVariable id: String) {
+        try {
+            productService.deleteProductIfNoStock(id)
+        } catch (e: IllegalArgumentException) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+        } catch (e: NoSuchElementException) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found")
+        } catch (e: IllegalStateException) {
+            throw ResponseStatusException(HttpStatus.CONFLICT, "Product still in stock")
         }
     }
 }

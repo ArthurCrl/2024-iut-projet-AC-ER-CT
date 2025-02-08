@@ -1,4 +1,4 @@
-package iut.nantes.project.products.controlleur.dto
+package iut.nantes.project.products.dto
 
 import iut.nantes.project.products.repository.ProductJpa
 

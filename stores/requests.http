@@ -130,7 +130,7 @@ Content-Type: application/json
     "amount": 875,
     "currency": "EUR"
   },
-  "familyId": "5d0fd21b-5378-4e8a-b6fb-fdd8bb2c07ef"
+  "familyId": "8fe337ef-97e6-4ec9-9045-3c341fe3a05d"
 }
 
 ### 3. Obtenir le produit
@@ -139,16 +139,113 @@ GET http://localhost:8081/api/v1/products
 
 ### 3. TESTER Stock API
 # 3.1 Ajouter un produit au stock
-POST http://localhost:8082/api/v1/stores/1/products/e1780f71-e27e-4778-9585-d7675f777fc2/add?quantity=2
+POST http://localhost:8082/api/v1/stores/1/products/0077201f-e0f3-4770-b32f-193f62ee3d3a/add?quantity=2
 
 ### 3.2 Retirer un produit du stock
-POST http://localhost:8082/api/v1/stores/1/products/e1780f71-e27e-4778-9585-d7675f777fc2/remove?quantity=1
+POST http://localhost:8082/api/v1/stores/1/products/0077201f-e0f3-4770-b32f-193f62ee3d3a/remove?quantity=1
 
 ### 3.3 Supprimer des produits du stock
 DELETE http://localhost:8082/api/v1/stores/1/products
 Content-Type: application/json
 
 [
-  "e1780f71-e27e-4778-9585-d7675f777fc2",
-  "e1780f71-e27e-4778-9585-d7675f777fc2"
+  "0077201f-e0f3-4770-b32f-193f62ee3d3a"
 ]
+
+### 2.3 Obtenir un magasin par ID
+GET http://localhost:8082/api/v1/stores/1
+
+
+
+
+### 4.1. Création de la famille
+POST http://localhost:8081/api/v1/families
+Content-Type: application/json
+
+{
+  "name": "Bike",
+  "description": "All kinds of bikes"
+}
+
+### 2. TESTER Store API
+# 2.1 Créer un magasin
+POST http://localhost:8082/api/v1/stores
+Content-Type: application/json
+
+{
+  "name": "Atlantis",
+  "contact": {
+    "email": "contact1@example.com",
+    "phone": "0123456789",
+    "address": {
+      "street": "Rue Example",
+      "city": "Nantes",
+      "postalCode": "44300"
+    }
+  },
+  "products": []
+}
+
+### 3. Obtenir famille
+GET http://localhost:8081/api/v1/families
+
+### 4.2. Création d'un produit
+POST http://localhost:8081/api/v1/products
+Content-Type: application/json
+
+{
+  "name": "RC 500",
+  "description": "Road bike for cyclotouring",
+  "price": {
+    "amount": 875,
+    "currency": "EUR"
+  },
+  "familyId": "208e8438-f6f4-4bda-8e69-d3d2aefd57e8"
+}
+
+### 2. TESTER Store API
+# 2.1 Créer un magasin
+POST http://localhost:8082/api/v1/stores
+Content-Type: application/json
+
+{
+  "name": "Atlantis",
+  "contact": {
+    "email": "contact1@example.com",
+    "phone": "0123456789",
+    "address": {
+      "street": "Rue Example",
+      "city": "Nantes",
+      "postalCode": "44300"
+    }
+  },
+  "products": []
+}
+
+### 3. Obtenir le produit
+GET http://localhost:8081/api/v1/products
+
+### 4.3. Vérification du produit dans les stocks
+#Ajout du produit au magasin
+POST http://localhost:8082/api/v1/stores/1/products/37079a90-953d-4915-b270-2195384eb8a8/add?quantity=2
+
+### 4.4. Tentative de suppression du produit (échec attendu)
+DELETE http://localhost:8081/api/v1/products/37079a90-953d-4915-b270-2195384eb8a8
+
+### 4.5. Retrait du produit des stocks
+POST http://localhost:8082/api/v1/stores/1/products/37079a90-953d-4915-b270-2195384eb8a8/remove?quantity=2
+
+### 3.3 Supprimer des produits du stock
+DELETE http://localhost:8082/api/v1/stores/1/products
+Content-Type: application/json
+
+[
+  "37079a90-953d-4915-b270-2195384eb8a8"
+]
+
+### 4.6. Suppression du produit (réussite attendue)
+DELETE http://localhost:8081/api/v1/products/37079a90-953d-4915-b270-2195384eb8a8
+
+### 3. Obtenir le produit
+GET http://localhost:8081/api/v1/products
+

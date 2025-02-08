@@ -69,4 +69,10 @@ class StoreController(private val storeService: StoreService) {
         storeService.deleteProductsFromStock(storeId, productIds)
         return ResponseEntity.noContent().build()
     }
+
+    @GetMapping("/products/{productId}/stock")
+    fun checkProductStock(@PathVariable productId: UUID): ResponseEntity<Boolean> {
+        val isInStock = storeService.isProductInStock(productId)
+        return ResponseEntity.ok(isInStock)
+    }
 }

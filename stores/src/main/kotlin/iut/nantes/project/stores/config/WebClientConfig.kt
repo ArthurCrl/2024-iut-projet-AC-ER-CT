@@ -9,6 +9,6 @@ class WebClientConfig {
 
     @Bean
     fun webClient(): WebClient {
-        return WebClient.builder().baseUrl("http://localhost:8081").build() // Remplacer par l'URL du service Product
+        return WebClient.builder().baseUrl("http://localhost:8081").build()
     }
 }

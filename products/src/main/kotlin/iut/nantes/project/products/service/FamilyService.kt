@@ -1,16 +1,15 @@
 package iut.nantes.project.products.service
 
-import iut.nantes.project.products.controlleur.dto.FamilyRequest
-import iut.nantes.project.products.controlleur.dto.FamilyResponse
+import iut.nantes.project.products.dto.FamilyRequest
+import iut.nantes.project.products.dto.FamilyResponse
 import iut.nantes.project.products.repository.FamilyJpa
 import iut.nantes.project.products.repository.FamilyRepository
 import iut.nantes.project.products.repository.ProductRepository
-import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.reactive.function.client.WebClient
 import java.util.*
 import kotlin.NoSuchElementException
 
-@Service
 @Transactional
 class FamilyService(
     private val familyRepository: FamilyRepository,

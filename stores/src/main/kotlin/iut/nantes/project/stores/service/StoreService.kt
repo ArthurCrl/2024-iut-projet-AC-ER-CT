@@ -113,7 +113,6 @@ class StoreService(
         }
     }
 
-
     fun removeProductFromStock(storeId: Long, productId: UUID, quantity: Int): ProductDTO {
         if (quantity <= 0) throw IllegalArgumentException("La quantité doit être positive.")
 
@@ -145,6 +144,12 @@ class StoreService(
 
         store.products.removeAll { it.id in productIds }
         storeRepository.save(store)
+    }
+
+    fun isProductInStock(productId: UUID): Boolean {
+        return storeRepository.findAll().any { store ->
+            store.products.any { it.id == productId && it.quantity > 0 }
+        }
     }
 }
 

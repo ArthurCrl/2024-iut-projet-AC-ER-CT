@@ -1,22 +1,22 @@
 package iut.nantes.project.products.service
 
-import iut.nantes.project.products.controlleur.dto.ProductRequest
-import iut.nantes.project.products.controlleur.dto.ProductResponse
-import iut.nantes.project.products.controlleur.dto.PriceResponse
-import iut.nantes.project.products.controlleur.dto.FamilyResponse
+import iut.nantes.project.products.dto.ProductRequest
+import iut.nantes.project.products.dto.ProductResponse
+import iut.nantes.project.products.dto.PriceResponse
+import iut.nantes.project.products.dto.FamilyResponse
 import iut.nantes.project.products.repository.FamilyRepository
 import iut.nantes.project.products.repository.PriceJpa
 import iut.nantes.project.products.repository.ProductJpa
 import iut.nantes.project.products.repository.ProductRepository
-import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.reactive.function.client.WebClient
 import java.util.*
 
-@Service
 @Transactional
 class ProductService(
     private val productRepository: ProductRepository,
-    private val familyRepository: FamilyRepository
+    private val familyRepository: FamilyRepository,
+    private val webClient: WebClient
 ) {
     private fun validateProductRequest(request: ProductRequest) {
         if (request.name.length !in 2..20) {
@@ -52,14 +52,11 @@ class ProductService(
     }
 
     fun createProduct(request: ProductRequest): ProductResponse {
-        // Validation des champs du produit
         validateProductRequest(request)
 
-        // Vérification de la famille
         val family = familyRepository.findById(request.familyId)
             .orElseThrow { IllegalArgumentException("Family not found with given ID") }
 
-        // Création et sauvegarde du produit
         val product = ProductJpa(
             name = request.name,
             description = request.description,
@@ -109,16 +106,13 @@ class ProductService(
     }
 
     fun updateProduct(id: String, request: ProductRequest): ProductResponse {
-        // Validation de l'UUID
         if (!isValidUUID(id)) {
             throw IllegalArgumentException("Invalid UUID format")
         }
 
-        // Recherche du produit existant
         val existingProduct = productRepository.findById(id)
             .orElseThrow { NoSuchElementException("No product found with the given ID") }
 
-        // Validation des champs du produit
         if (request.name.length !in 2..20 || (request.description?.length ?: 0) !in 5..100) {
             throw IllegalArgumentException("Invalid product name or description length")
         }
@@ -127,11 +121,9 @@ class ProductService(
             throw IllegalArgumentException("Invalid price amount or currency format")
         }
 
-        // Vérification de l'existence de la famille
         val family = familyRepository.findById(request.familyId)
             .orElseThrow { IllegalArgumentException("Family not found with given ID") }
 
-        // Mise à jour du produit
         val updatedProduct = existingProduct.copy(
             name = request.name,
             description = request.description,
@@ -144,4 +136,32 @@ class ProductService(
         return toProductResponse(updatedProduct)
     }
 
+    fun isProductInStock(productId: String): Boolean {
+        return try {
+            webClient.get()
+                .uri("http://localhost:8081/api/v1/stores/products/$productId/stock")
+                .retrieve()
+                .bodyToMono(Boolean::class.java)
+                .block() ?: false
+        } catch (ex: Exception) {
+            println("Erreur lors de la vérification du stock: ${ex.message}")
+            throw IllegalArgumentException("Erreur lors de la vérification du stock pour le produit $productId")
+        }
+    }
+
+    fun deleteProductIfNoStock(productId: String) {
+        if (!isValidUUID(productId)) {
+            throw IllegalArgumentException("Invalid UUID format")
+        }
+
+        val product = productRepository.findById(productId)
+            .orElseThrow { NoSuchElementException("Product not found") }
+
+        // Vérifie via l'API Store si le produit est en stock
+        if (isProductInStock(productId)) {
+            throw IllegalStateException("Product is still in stock in at least one store")
+        }
+
+        productRepository.delete(product)
+    }
 }
